@@ -6,7 +6,11 @@ import 'DiveLocations.dart';
 import 'DiveMasters.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  var publicKey;
+  bool isConnected;
+
+
+  MainPage(this.publicKey, this.isConnected);
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -15,8 +19,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   String? selectedLocation;
   String? selectedDiveMaster;
-  var publicKey;
-  var isConnected = false;
+
   //final WalletConnection _walletService = WalletConnection();
 
   Future<void> _navigateToWalletConnection() async {
@@ -24,12 +27,7 @@ class _MainPageState extends State<MainPage> {
       context,
       MaterialPageRoute(builder: (context) => WalletConnection()),
     );
-    if (result != null) {
-      setState(() {
-        publicKey = result['publicKey'];
-        isConnected = result['isConnected'];
-      });
-    }
+
   }
 
   @override
@@ -55,9 +53,26 @@ class _MainPageState extends State<MainPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-                Container(
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: mainColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.transparent),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: widget.isConnected
+                    ? Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   decoration: BoxDecoration(
                     color: mainColor,
                     borderRadius: BorderRadius.circular(12),
@@ -71,30 +86,43 @@ class _MainPageState extends State<MainPage> {
                       ),
                     ],
                   ),
-            child: TextButton(
-              onPressed: _navigateToWalletConnection,
-              style: TextButton.styleFrom(
-                backgroundColor: mainColor,
-                foregroundColor: textColor1,
-                padding: EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: Text(
-                "Connect Wallet",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  child: Center(
+                    child: Text(
+                      "Wallet Connected",
+                      style: TextStyle(
+                        color: textColor1,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
+
+                    : TextButton(
+                  onPressed: _navigateToWalletConnection,
+                  style: TextButton.styleFrom(
+                    backgroundColor: mainColor,
+                    foregroundColor: textColor1,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: Text(
+                    "Connect Wallet", // Cüzdan bağlama butonu
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          SizedBox(height: 20),
+
+              SizedBox(height: 20),
           Text(
-            "Public Key: ${publicKey ?? 'Not Connected'}",
+            "Public Key: ${widget.publicKey ?? 'Not Connected'}",
             style: TextStyle(color: mainColor, fontSize: 16),
           ),
           SizedBox(height: 20),
           Text(
-            "Wallet Connected: ${isConnected ? 'Yes' : 'No'}",
+            "Wallet Connected: ${widget.isConnected ? 'Yes' : 'No'}",
             style: TextStyle(color: mainColor, fontSize: 16),
           ),
 
@@ -177,16 +205,16 @@ class _MainPageState extends State<MainPage> {
                 ),
                 child: TextButton(
                   onPressed: () {
-                    if (selectedLocation != null && selectedDiveMaster != null) {
+                    if (selectedLocation != null && selectedDiveMaster != null && widget.publicKey != null) {
                       DiveMaster? diveMaster = diveMasters.firstWhere(
                             (dm) => dm.name == selectedDiveMaster,
                         orElse: () => DiveMaster(name: 'null', surname: 'null', walletAddress: 'null'),
                       );
 
-                      if (diveMaster.walletAddress != 'null') {
-                        print("Dive master: ${diveMaster.name} ${diveMaster.surname}, Wallet: ${diveMaster.walletAddress}");
-                      } else {
-                        print("Selected Dive Master not found.");
+                          if (diveMaster.walletAddress != 'null') {
+                          print("sent to ${diveMaster.name} for approval. (Your wallet: ${widget.publicKey}");
+                      }   else {
+                           print("Selected Dive Master not found.");
                       }
                     } else {
                       print("No location or dive master selected");

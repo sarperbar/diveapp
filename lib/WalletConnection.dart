@@ -48,13 +48,6 @@ class _WalletConnectionState extends State<WalletConnection> {
 
 
 
-  void _navigateBack() {
-    Navigator.pop(context, {
-      'publicKey': publicKey,
-      'isConnected': isConnected,
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
