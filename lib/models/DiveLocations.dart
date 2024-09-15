@@ -6,5 +6,5 @@ const List<String> diveLocations = [
   'Palau',
   'Cozumel',
   'Maldives',
-  'Sarper',
+  'Kusadasi',
 ];

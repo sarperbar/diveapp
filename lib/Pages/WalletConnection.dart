@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:web3modal_flutter/services/w3m_service/w3m_service.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 import 'MainPage.dart';
-import 'color.dart';
+import 'package:wallet_connection_1/color.dart';
+
 
 class WalletConnection extends StatefulWidget {
   const WalletConnection({super.key});
@@ -24,6 +24,7 @@ class _WalletConnectionState extends State<WalletConnection> {
   }
 
   void _initializeService() async {
+    W3MChainPresets.chains.putIfAbsent(_chainId, () => _sepoliaChain);
     _w3mService = W3MService(
       projectId: '9fe6461ab274ea61c03732711eae0d9c',
       metadata: const PairingMetadata(
@@ -38,14 +39,20 @@ class _WalletConnectionState extends State<WalletConnection> {
       ),
     );
     await _w3mService.init();
+
+
+    _w3mService.addListener(() {
+      setState(() {
+        publicKey = _w3mService.session?.address ?? 'No Address';
+        isConnected = _w3mService.session != null;
+      });
+    });
+
     setState(() {
       publicKey = _w3mService.session?.address ?? 'No Address';
-
       isConnected = _w3mService.session != null;
-
     });
   }
-
 
 
   void _navigateBack() {
@@ -86,7 +93,7 @@ class _WalletConnectionState extends State<WalletConnection> {
               const SizedBox(height: 20),
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   color: mainColor,
                   borderRadius: BorderRadius.circular(12),
@@ -96,26 +103,26 @@ class _WalletConnectionState extends State<WalletConnection> {
                       color: Colors.black.withOpacity(0.2),
                       spreadRadius: 2,
                       blurRadius: 5,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
                 child: TextButton(
                   onPressed: () {
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => MainPage(publicKey,isConnected)),
+                        builder: (context) =>
+                            MainPage(publicKey, isConnected),
+                      ),
                     );
-
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: mainColor,
                     foregroundColor: textColor1,
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text(
+                  child: const Text(
                     "Back",
                     style: TextStyle(
                       fontSize: 16,
@@ -141,3 +148,18 @@ class _WalletConnectionState extends State<WalletConnection> {
     );
   }
 }
+
+const _chainId = "11155111";
+
+final _sepoliaChain = W3MChainInfo(
+  chainName: 'Sepolia',
+  chainId: '11155111',
+  namespace: 'eip155:11155111',
+  tokenName: 'SEP',
+  rpcUrl: 'https://ethereum-sepolia.publicnode.com',
+  blockExplorer: W3MBlockExplorer(
+    name: 'Sepolia Etherscan',
+    url: 'https://sepolia.etherscan.io/',
+  ),
+);
+
